@@ -1,43 +1,41 @@
 package util;
 
-import java.util.Properties;
-
 import dao.entity.Student;
 import org.hibernate.SessionFactory;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.cfg.Configuration;
-import org.hibernate.cfg.Environment;
 import org.hibernate.service.ServiceRegistry;
 
 public class HibernateUtil {
-    private static SessionFactory sessionFactory;
-    public static SessionFactory getSessionFactory() {
-        if (sessionFactory == null) {
-            try {
-                Configuration configuration = new Configuration();
+    private HibernateUtil() {
+    }
 
-                Properties settings = new Properties();
-                settings.put(Environment.DRIVER, "cdata.postgresql.PostgreSQLDriver");
-                settings.put(Environment.URL, "jdbc:postgresql://localhost/university");
-                settings.put(Environment.USER, "postgres");
-                settings.put(Environment.PASS, "Aliyev@123");
+    private static final SessionFactory sessionFactory = buildSessionFactory();
 
-                settings.put(Environment.SHOW_SQL, "true");
+    private static SessionFactory buildSessionFactory() {
+        try {
+            Configuration configuration = new Configuration();
+            configuration.setProperty("hibernate.connection.driver_class", "org.postgresql.Driver");
+            configuration.setProperty("hibernate.connection.url", "jdbc:postgresql://localhost:5432/postgres?currentSchema=university");
+            configuration.setProperty("hibernate.connection.username", "postgres");
+            configuration.setProperty("hibernate.connection.password", "Aliyev@123");
+            configuration.setProperty("hibernate.dialect", "org.hibernate.dialect.PostgreSQLDialect");
+            configuration.setProperty("hibernate.show_sql", "true");
+            configuration.setProperty("hibernate.hbm2ddl.auto", "validate");
+            // DDL mode
+            configuration.addAnnotatedClass(Student.class);
 
-                settings.put(Environment.HBM2DDL_AUTO, "create-drop");
-
-                configuration.setProperties(settings);
-
-                configuration.addAnnotatedClass(Student.class);
-
-                ServiceRegistry serviceRegistry = new StandardServiceRegistryBuilder()
-                        .applySettings(configuration.getProperties()).build();
-
-                sessionFactory = configuration.buildSessionFactory(serviceRegistry);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+            ServiceRegistry serviceRegistry = new StandardServiceRegistryBuilder()
+                    .applySettings(configuration.getProperties())
+                    .build();
+            return configuration.buildSessionFactory(serviceRegistry);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            throw new ExceptionInInitializerError(ex);
         }
+    }
+
+    public static SessionFactory getSessionFactory() {
         return sessionFactory;
     }
 }

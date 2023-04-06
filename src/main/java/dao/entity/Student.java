@@ -11,20 +11,18 @@ import javax.persistence.*;
 @NoArgsConstructor
 @Entity
 @Table(name = "university_student")
-public class Student {
+public class Student {  // student
     @Id
-    @GeneratedValue
     @Column(name = "id")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(name = "name")
-    private String firstName;
+    private String firstName; // first_name
 
     @Column(name = "surname")
-    private String lastName;
+    private String lastName; // last_name
 
     @Column(name = "email")
     private String email;
-
-
 }
